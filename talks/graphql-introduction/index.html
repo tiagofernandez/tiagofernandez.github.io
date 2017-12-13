@@ -1,0 +1,381 @@
+<!doctype html>
+
+<html lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <title>GraphQL: Introduction</title>
+
+        <meta name="author" content="Tiago Fernandez">
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+        <!-- Favicons -->
+        <link rel="apple-touch-icon" sizes="180x180" href="../../favicons/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="../../favicons/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="../../favicons/favicon-16x16.png">
+        <link rel="manifest" href="../../favicons/manifest.json">
+        <link rel="mask-icon" href="../../favicons/safari-pinned-tab.svg" color="#878787">
+        <link rel="shortcut icon" href="../../favicons/favicon.ico">
+        <meta name="msapplication-config" content="../../favicons/browserconfig.xml">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.5.0/css/reveal.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.5.0/css/theme/white.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.5.0/lib/css/zenburn.css">
+        <link rel="stylesheet" href="../../css/talks.css">
+
+        <script src="https://use.typekit.net/jor2kyz.js"></script>
+        <script>try { Typekit.load({ async: true }); } catch(e) {}</script>
+
+        <!-- Printing and PDF exports -->
+        <script>
+            var link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.href = window.location.search.match(/print-pdf/gi) ?
+                'https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.5.0/css/print/pdf.min.css' :
+                'https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.5.0/css/print/paper.min.css';
+            document.getElementsByTagName('head')[0].appendChild(link);
+        </script>
+
+        <!--[if lt IE 9]>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.5.0/lib/js/html5shiv.js"></script>
+        <![endif]-->
+    </head>
+
+    <body>
+        <div id="credit" style="display: none">
+        </div>
+
+        <div class="reveal">
+            <div class="slides">
+
+<section data-background="#008C9E" class="first-slide">
+    <img src="graphql-white.svg" class="logo-image" style="width: 40%" />
+    <p style="text-align: center" class="title-font">
+        Introduction to <strong>GraphQL</strong>
+    </p>
+    <p style="font-size: 70%" class="normal-font">
+        by <a href="http://tiagofernandez.com" target="_blank">Tiago Fernandez</a> &ndash; December 2017
+        <br/>
+        <a href="?print-pdf" target="_blank">
+            <img src="../../images/print-white.png" style="width: 50px" />
+        </a>
+    </p>
+</section>
+
+<section>
+    <h2>Who is this for?</h2>
+    <img class="fragment fade-in" data-fragment-index="1" src="../../images/memes/developers-developers-developers.png">
+</section>
+
+<section>
+    <h2>Typical architecture</h2>
+    <img src="rest-api.svg" style="width: 80%">
+</section>
+
+<section>
+    <h2>API gateway</h2>
+    <img src="api-gateway.svg">
+</section>
+
+<section>
+    <h2>Common issues</h2>
+    <ul>
+        <li class="fragment fade-in" data-fragment-index="1">
+            <span class="bold">Over-fetching</span>: too much data in the response
+        </li>
+        <li class="fragment fade-in" data-fragment-index="2">
+            <span class="bold">Under-fetching</span>: not enough data in an endpoint
+        </li>
+        <li class="fragment fade-in" data-fragment-index="3">
+            <span class="bold">Performance</span>: more bandwidth &amp; HTTP requests
+        </li>
+        <li class="fragment fade-in" data-fragment-index="4">
+            <span class="bold">Documentation</span>: writing and maintaining specs
+        </li>
+    </ul>
+    <aside class="notes">
+        Over-fetching is fetching too much data, aka there is data in the reponse you don't use.
+
+        Under-fetching is not having enough data with a call to an endpoint, leading you to call a second endpoint.
+
+        In both cases, they are performances issues : you either use more bandwidth than you should, or you are making more HTTP requests that you should.
+
+        In a perfect world, theses problems would never arise; you would have exactly the right endpoints to give exactly the right data to your products.
+
+        Theses problems often appear when you scale and iterate on your products. The data you use on your pages often change, and the cost to maintain a separate endpoint with exactly the right data for each component becomes too much.
+
+        So you end up with a compromise between not having too much endpoints and having the endpoints fit the need best. This will lead to over-fetching in some cases (the endpoint will provide more data that you need for your specific component), and under-fetching in others (you will need to call a second endpoint).
+
+        So GraphQL fixes this problem because it allows access to an arbitrary set of data exposed by the server. You specifically specify what you need and will get this data, and only this data, in one trip to the server.
+    </aside>
+</section>
+
+<section>
+    <h2>GraphQL approach</h2>
+    <img src="graphql-api.svg" style="width: 70%">
+</section>
+
+<section>
+    <h2>What's GraphQL?</h2>
+    <ul>
+        <li class="fragment fade-in" data-fragment-index="1">A data query language</li>
+        <li class="fragment fade-in" data-fragment-index="2">Server-side runtime for executing queries</li>
+        <li class="fragment fade-in" data-fragment-index="3">Describes what to fetch rather than actual queries</li>
+        <li class="fragment fade-in" data-fragment-index="4">Agnostic to the underlying database or storage</li>
+        <li class="fragment fade-in" data-fragment-index="5">Created by Facebook in 2012 and released in 2015</li>
+    </ul>
+</section>
+
+<section>
+    <img src="graphql-queries.png">
+</section>
+
+<section>
+    <h2>Type system</h2>
+    <pre style="float: left; width: 50%">
+        <code data-trim contenteditable class="javascript">
+type Character {
+  name: String!
+  appearsIn: [Episode]!
+}
+
+enum Episode {
+  NEWHOPE
+  EMPIRE
+  JEDI
+}
+
+type Query {
+  hero: Character
+  droid(id: ID!): Droid
+}
+        </code>
+    </pre>
+    <pre style="float: left; width: 50%">
+        <code data-trim contenteditable class="javascript">
+type Human implements Character {
+  id: ID!
+  name: String!
+  friends: [Character]
+  appearsIn: [Episode]!
+  starships: [Starship]
+  totalCredits: Int
+}
+
+type Droid implements Character {
+  id: ID!
+  name: String!
+  appearsIn: [Episode]!
+  primaryFunction: String
+}
+        </code>
+    </pre>
+</section>
+
+<section>
+    <h2>Queries</h2>
+    <pre style="float: left; width: 50%">
+        <code data-trim contenteditable class="javascript">
+query {
+  hero(id: "1000") {
+    name
+    friends {
+      name
+    }
+  }
+}
+        </code>
+    </pre>
+    <pre style="float: left; width: 50%">
+        <code data-trim contenteditable class="javascript">
+{
+  "data": {
+    "hero": {
+      "name": "R2-D2",
+      "friends": [
+        {
+          "name": "Luke Skywalker"
+        },
+        {
+          "name": "Han Solo"
+        }
+      ]
+    }
+  }
+}
+        </code>
+    </pre>
+</section>
+
+<section>
+    <h2>Variables</h2>
+    <pre style="float: left; width: 50%">
+        <code data-trim contenteditable class="javascript">
+{
+  human(id: $id) {
+    name
+    height(unit: $unit)
+  }
+}
+
+{
+  "id": "1001",
+  "unit": "METER"
+}
+        </code>
+    </pre>
+    <pre style="float: left; width: 50%">
+        <code data-trim contenteditable class="javascript">
+{
+  "data": {
+    "human": {
+      "name": "Darth Vader",
+      "height": 2.02
+    }
+  }
+}
+        </code>
+    </pre>
+</section>
+
+<section>
+    <h2>Mutations</h2>
+    <pre>
+        <code data-trim contenteditable class="javascript">
+input ReviewInput {
+  stars: Int!
+}
+
+mutation NewReview($ep: Episode!, $review: ReviewInput!) {
+  createReview(episode: $ep, review: $review) {
+    stars
+  }
+}
+
+{
+  "ep": "JEDI",
+  "review": {
+    "stars": 5
+  }
+}
+        </code>
+    </pre>
+</section>
+
+<section>
+    <h2>GraphiQL</h2>
+    <h3>In-browser IDE for exploring GraphQL</h3>
+</section>
+
+<section>
+    <h2>Pros</h2>
+    <ul>
+        <li class="fragment fade-in" data-fragment-index="1">
+            <span class="bold">Single endpoint</span>: easier to scale
+        </li>
+        <li class="fragment fade-in" data-fragment-index="2">
+            <span class="bold">Tailored responses</span>: clients get what they want
+        </li>
+        <li class="fragment fade-in" data-fragment-index="3">
+            <span class="bold">Less round trips</span>: related nodes returned together
+        </li>
+        <li class="fragment fade-in" data-fragment-index="4">
+            <span class="bold">Backwards compatibility</span>: structure up to the client
+        </li>
+        <li class="fragment fade-in" data-fragment-index="5">
+            <span class="bold">Self-documented</span>: built-in web console (GraphiQL)
+        </li>
+    </ul>
+</section>
+
+<section>
+    <h2>Cons</h2>
+    <ul>
+        <li class="fragment fade-in" data-fragment-index="1">
+            <span class="bold">Joins</span>: extra queries in relational databases
+        </li>
+        <li class="fragment fade-in" data-fragment-index="2">
+            <span class="bold">Nested queries</span>: might lead to circular references
+        </li>
+        <li class="fragment fade-in" data-fragment-index="3">
+            <span class="bold">Extra processing</span>: for parsing &amp; verifying the query
+        </li>
+        <li class="fragment fade-in" data-fragment-index="4">
+            <span class="bold">Caching</span>: query caching needed on client-side
+        </li>
+    </ul>
+</section>
+
+<section>
+    <h2>Tools</h2>
+    <ul>
+        <li>
+            <span class="bold"><a href="https://github.com/graphql/graphql-js/" target="_blank">graphql-js</a></span>: Node.js
+        </li>
+        <li>
+            <span class="bold"><a href="https://github.com/apollographql/apollo-client" target="_blank">apollo</a></span> &amp; <span class="bold"><a href="https://github.com/facebook/relay/" target="_blank">relay</a></span>: JavaScript clients
+        </li>
+        <li>
+            <span class="bold"><a href="http://graphene-python.org/" target="_blank">graphene</a></span> &amp; <span class="bold"><a href="https://github.com/graphql-python/gql/" target="_blank">gql</a></span>: Python libraries
+        </li>
+        <li>
+            <span class="bold"><a href="https://github.com/rmosolgo/graphql-ruby" target="_blank">graphql-ruby</a></span>: Ruby implementation
+        </li>
+        <li>
+            <span class="bold"><a href="https://github.com/graphql-java/graphql-java" target="_blank">graphql-java</a></span>: Java implementation
+        </li>
+        <li>
+            <span class="bold"><a href="https://github.com/sangria-graphql/sangria" target="_blank">sangria</a></span>: Scala implementation
+        </li>
+    </ul>
+</section>
+
+<section>
+    <h2>Many other libraries!</h2>
+    <h3>
+        <a href="http://graphql.org/code/" target="_blank">
+            http://graphql.org/code/
+        </a>
+    </h3>
+    <a href="https://github.com/chentsulin/awesome-graphql" target="_blank" class="fragment fade-in" data-fragment-index="1">
+        <img src="../../images/memes/we-use-all-the-frameworks.jpg">
+    </a>
+</section>
+
+<section data-background="#008C9E" class="last-slide">
+    <img src="../../images/thanks-white.png" style="width: 90%">
+</section>
+
+            </div>
+        </div>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.5.0/lib/js/head.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.5.0/js/reveal.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+
+        <script>
+            // https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+                controls: true,
+                progress: true,
+                history: true,
+                center: true,
+                transition: 'slide', // none | fade | slide | convex | concave | zoom
+                dependencies: [
+                    { src: 'https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.5.0/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+                    { src: 'https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.5.0/plugin/markdown/marked.js', condition: function() { return !!document.querySelector('[data-markdown]'); } },
+                    { src: 'https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.5.0/plugin/markdown/markdown.min.js', condition: function() { return !!document.querySelector('[data-markdown]'); } },
+                    { src: 'https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.5.0/plugin/highlight/highlight.min.js', async: true, condition: function() { return !!document.querySelector('pre code'); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+                    { src: 'https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.5.0/plugin/zoom-js/zoom.min.js', async: true },
+                    { src: 'https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.5.0/plugin/notes/notes.min.js', async: true }
+                ]
+            });
+        </script>
+    </body>
+</html>
